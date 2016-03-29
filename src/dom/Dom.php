@@ -227,7 +227,7 @@ class Dom
         $items = array_merge($items1, $items2);
         $len = count($items);
 
-        // retrieves non-repeated elements
+        // collects non-repeated elements
         for ($i = 0; $i < $len; $i++) {
             $item = $items[$i];
             $position = Dom::searchNode($item, $items, $i + 1);
@@ -235,9 +235,21 @@ class Dom
                 array_push($ret, $item);
             }
         }
-
+        
+        return $ret;
+    }
+    
+    /**
+     * Sort nodes in the same order they appear in the document.
+     * 
+     * @param array $nodes List of DOMNode objects
+     * 
+     * @return array of DOMNode objects
+     */
+    public static function sortNodes($nodes)
+    {
         // saves node paths
-        foreach ($ret as $node) {
+        foreach ($nodes as $node) {
             if (!isset($node->__path__)) {
                 $node->__path__ = Dom::_getNodePath($node);
             }
@@ -245,7 +257,7 @@ class Dom
 
         // sorts elements in the same order they appear in the document
         usort(
-            $ret,
+            $nodes,
             function ($node0, $node1) {
                 $path0 = $node0->__path__;
                 $path1 = $node1->__path__;
@@ -262,8 +274,13 @@ class Dom
                 return $count0 > $count1;
             }
         );
-
-        return $ret;
+        
+        // unsets __path__
+        foreach ($nodes as $node) {
+            unset($node->__path__);
+        }
+        
+        return $nodes;
     }
 
     /**
